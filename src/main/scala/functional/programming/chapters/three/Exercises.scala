@@ -3,14 +3,10 @@ package functional.programming.chapters.three
 object Exercises {
 
 
-  def main(args: Array[String]): Unit = {
-    //    exercise3_1()
-    //    exercise3_2()
-    //    exercise3_3()
-    //    exercise3_4()
-//    exercise3_5()
-    exercise3_6()
-  }
+  //  def main(args: Array[String]): Unit = {
+  //    exercise3_1()
+  //    exercise3_8()
+  //  }
 
 
   def exercise3_1(): Unit = {
@@ -24,38 +20,22 @@ object Exercises {
     println(x)
   }
 
-  def exercise3_2(): Unit = {
-    println(tail(List(1, 2, 3, 4, 5, 6)))
-    println(tail(List(1)))
-    println(tail(Nil))
-  }
 
-
+  //3.2
   def tail[A](list: List[A]): List[A] = list match {
     case Nil => Nil
     case ::(_, a) => a
   }
 
-  def exercise3_3(): Unit = {
-    println(setHead(List(1, 2, 3, 4, 5, 6), 7))
-    println(setHead(List(1), 2))
-    println(setHead[Int](Nil, 1))
-  }
 
-
+  //3.3
   def setHead[A](list: List[A], item: A): List[A] = list match {
     case Nil => Nil
     case ::(_, a) => item :: a
   }
 
 
-  def exercise3_4(): Unit = {
-    println(drop(List(1, 2, 3, 4, 5, 6), 3))
-    println(drop(List(1, 2, 3, 4, 5, 6), 2))
-    println(drop(List(1), 2))
-    println(drop[Int](Nil, 1))
-  }
-
+  //3.4
   def drop[A](l: List[A], n: Int): List[A] = {
 
     def loop(l: List[A], n: Int): List[A] = {
@@ -74,45 +54,88 @@ object Exercises {
 
   }
 
-  def exercise3_5(): Unit = {
-    def isEven(x: Int): Boolean = {
-      x % 2 == 0
-    }
 
-    println(dropWhile(List(1, 2, 3, 4, 5, 6), isEven))
-    println(dropWhile(List(2), isEven))
-    println(dropWhile[Int](Nil, isEven))
-  }
-
-
+  //3.5
   def dropWhile[A](l: List[A], f: A => Boolean): List[A] = {
 
-    def loop(keep: List[A], l: List[A], f: A => Boolean): List[A] = l match {
-      case Nil => keep
+    l match {
+      case Nil => Nil
       case ::(a: A, b: List[A]) =>
-        if (f(a)) loop(::(a, keep), b, f)
-        else loop(keep, b, f)
+        if (f(a)) ::(a, dropWhile(b, f))
+        else dropWhile(b, f)
     }
-
-    loop(Nil, l, f)
   }
 
 
-  def exercise3_6(): Unit = {
-    println(init(List(1, 2, 3, 4, 5, 6)))
-      println(init(List(1)))
-      println(init[Int](Nil))
-  }
-
+  //3.6
+  //    init(Cons(1, Cons(2, Cons(3, Nil)))
+  //    ::(1,init(Cons(2, Cons(3, Nil)))
+  //    ::(1,::(2, init(3, Nil)))
+  //    ::(1,::(2, Nil))
   def init[A](l: List[A]): List[A] = {
-
-    def loop(keep: List[A], l: List[A]): List[A] = l match {
-      case Nil => keep
-      case ::(_,Nil) => keep
-      case ::(a: A, b: List[A]) => loop(::(a, keep), b)
+    l match {
+      case Nil => Nil
+      case ::(_, Nil) => Nil
+      case ::(a: A, b: List[A]) => ::(a, init(b))
     }
+  }
 
-    loop(Nil, l)
+
+  def exercise3_8(): Unit = {
+    println(init(foldRight(List(1, 2, 3), Nil: List[Int])(::(_, _))))
+  }
+
+
+  //3.9
+  def foldRight[A, B](as: List[A], z: B)(f: (A, B) => B): B = as match {
+    case Nil => z
+    case ::(x, xs) => f(x, foldRight(xs, z)(f))
+  }
+
+  //3.10
+  def foldLeft[A, B](as: List[A], z: B)(f: (B, A) => B): B = {
+    as match {
+      case Nil => z
+      case ::(x, xs) => foldLeft(xs, f(z, x))(f)
+    }
+  }
+
+
+  def addOne(list: List[Int]): List[Int] = {
+    list match {
+      case Nil => Nil
+      case ::(x, y) => ::(x+1, addOne(y))
+    }
+  }
+
+  sealed trait Tree[+A]
+  case class Leaf[A](value: A) extends Tree[A]
+  case class Branch[A](left: Tree[A], right: Tree[A]) extends Tree[A]
+
+  def size[A](tree: Tree[A]): Int = {
+    tree match {
+      case Leaf(x) => 1
+      case Branch(l,r) => 1 + size(l) + size(r)
+    }
+  }
+
+  def maximum(tree: Tree[Int]): Int = {
+    tree match {
+      case Leaf(x) => x
+      case Branch(l,r) => this.max(maximum(l), maximum(r))
+    }
+  }
+
+  def max(x: Int, y: Int):Int= {
+    if(x>=y) x
+    else y
+  }
+
+  def depth(tree: Tree[Int]): Int = {
+    tree match {
+      case Leaf(x) => 1
+      case Branch(l,r) => 1 + this.max(depth(l),depth(r))
+    }
   }
 
 
